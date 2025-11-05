@@ -20,20 +20,16 @@ class ARIMA_model():
     def fit(self, method="L-BFGS-B"):
         # ---- initialize params (AR from OLS, MA small, sigma^2 from var of residual) ----
         alpha0, beta0 = self.init_ARMA_parameters()
-        print(alpha0)
         sigma20 = float(np.var(self.y - np.mean(self.y))) if len(self.y) > 1 else 1.0
         theta0 = self.pack_params(alpha0, beta0, sigma20)
-
-        print(theta0)
-
+        
         # ---- optimize negative log-likelihood ----
         res = minimize(self.neg_loglik, theta0, method=method, options={"maxiter": 500})
 
-        # print(self.neg_loglik(theta0))
         # ---- store results ----
-        # self.theta_hat = self.unpack_params(res.x)
-        # self.mle_result = res
-        # return self.theta_hat, res
+        self.theta_hat = self.unpack_params(res.x)
+        self.mle_result = res
+        return self.theta_hat, res
 
 
     def fitted_values(self):
@@ -77,7 +73,7 @@ class ARIMA_model():
 
     def init_ARMA_parameters(self):
         alpha_hat = self.ols_fit(self.y, self.p)
-        beta_hat = np.array([1.1 for _ in range(self.q)])
+        beta_hat = np.array([.1 for _ in range(self.q)])
         return alpha_hat, beta_hat
     
 
@@ -199,11 +195,6 @@ class ARIMA_model():
 
         ll = 0.0
         for t, y_t in enumerate(self.y):
-            print(t)
-            if t < 5:
-                print(f"t={t}  S={float(S):.3e}  v={float(v):.3e}  ll_t={ll_t:.6f}")
-
-
             y_t_mat = np.array([[float(y_t)]])
             w_pred, y_pred, Omega_pred, S = self.prediction(T, A, R, Q, H, w, Omega)
 
@@ -222,10 +213,10 @@ class ARIMA_model():
     #============================== Helpers ==============================
 
     def poly_roots_outside_unit(self, coeffs, kind="AR"):
-        coeffs = np.asarray(coeffs, float)
+        coeffs = np.asarray(coeffs, float)[::-1]
         if coeffs.size == 0:
             return True
-        poly = np.r_[1.0, (-coeffs if kind=="AR" else coeffs)]
+        poly = np.r_[(-coeffs if kind=="AR" else coeffs), 1.0]
         roots = np.roots(poly)
         return np.all(np.abs(roots) > 1.0)
     
