@@ -22,7 +22,7 @@ class ARIMA_model():
         alpha0, beta0 = self.init_ARMA_parameters()
         sigma20 = float(np.var(self.y - np.mean(self.y))) if len(self.y) > 1 else 1.0
         theta0 = self.pack_params(alpha0, beta0, sigma20)
-        
+
         # ---- optimize negative log-likelihood ----
         res = minimize(self.neg_loglik, theta0, method=method, options={"maxiter": 500})
 
@@ -81,7 +81,6 @@ class ARIMA_model():
 
     #============================== Parameter packing ==============================
     def pack_params(self, alpha, beta, sigma2):
-        # pack as [alpha..., beta..., log_sigma2]
         return np.concatenate([np.asarray(alpha, float),
                                np.asarray(beta, float),
                                np.array([np.log(sigma2)], float)])
