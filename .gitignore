@@ -1,2 +1,14 @@
 creds.py
 .venv
+
+src/config.py
+
+.venv
+.env
+notebooks/.cache.sqlite
+__pycache__
+__init__.py 
+
+build/
+dist/
+*.egg-info/
