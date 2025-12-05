@@ -6,7 +6,7 @@ src/config.py
 .venv
 .env
 notebooks/.cache.sqlite
-__pycache__
+**/__pycache__/
 __init__.py 
 
 build/
